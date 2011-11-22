@@ -1,0 +1,67 @@
+# global configuration - applies to all other configurations
+global:
+    # [OPTIONAL | default: 'git'] either `sql` or `git`
+    backupMode: sql
+    # [OPTIONAL | default: 'backups'] full absolute path or relative path (relative to dbgitbackup directory) WITHOUT trailing slash
+    backupsDir: backups
+    # [OPTIONAL | default: not set] how often backup should be created (string in format accepted by strtotime())
+    backupInterval: +2 hours
+    # [OPTIONAL | default: not set] enables backup directory rotation (string in format accepted by strtotime())
+    backupDirInterval: +3 months
+    # database server details
+    server:
+        # [REQUIRED] see lib/DbGitBackup/Vendor for a list of supported database vendors
+        vendor: MySql
+        # [OPTIONAL | default: '3306'] database server port number
+        port: 3306
+    # time settings used when prepending date to backup filename or git commits
+    time:
+        # [OPTIONAL | default: 'Y-m-d H:i:s'] default time format
+        format: Y-m-d H:i:s
+        # [OPTIONAL | default: '0'] offset from GMT time
+        offset: 2
+        # [OPTIONAL | default: not set] set to 0 to disable prepending date to backup filename (only when backupMode: sql)
+        active: 0
+    # [OPTIONAL | default: not set] run backup command with the given priority (highest priority: -20, lowest priority: 19)
+    nice: -20
+
+# sample backup configuration (there should not be another configuration with the same name within this file)
+backupConfiguration1:
+    # override global configuration
+    nice: 19
+    backupsDir: backups/backupConfiguration1
+    # here we are extending global server configuration
+    server:
+        # [REQUIRED]
+        host: mysql.sample.com
+        # [REQUIRED]
+        user: user
+        # [REQUIRED]
+        password: password
+    backup:
+        # [REQUIRED] database name (by default directory with the same name is created and backups are stored there)
+        database1:
+            # [OPTIONAL | default: same as database name] directory name for storing backups - only if different from database name
+            dirName: database1
+            # [OPTIONAL | default: not set] flag for disabling this backup
+            active: 0
+            # [OPTIONAL | default: same as database name] backup filename
+            file: database1.sql
+            # [OPTIONAL | default: not set] space delimited table names to include in this backup, you can use wildcard in table name i.e. tab%
+            tableNames: table1 table2 table3 table_prefix_%
+            # [OPTIONAL | default: not set] options passed to backup utility i.e. mysqlbackup
+            vendorOptions: --quote-names --compress
+        database2:
+        database3:
+
+# backup all databases on the server except database2
+backupConfiguration2:
+    backupsDir: backups/backupConfiguration2
+    server:
+        host: mysql.example.com
+        user: user
+        password: password
+    backup:
+        *:
+        database2:
+            active: 0
