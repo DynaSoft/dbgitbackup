@@ -23,7 +23,7 @@ Clone dbgitbackup project into a directory on your server:
 ```
 mkdir /home/user/dbgitbackup
 cd /home/user/dbgitbackup
-git clone https://github.com/boryn/dbgitbackup.git .
+git clone git://github.com/fireflyinteractive/dbgitbackup.git .
 ```
 
 Create empty config file inside `configs` folder:
