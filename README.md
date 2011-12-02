@@ -282,3 +282,9 @@ sampleBackupConfiguration2:
             tableNames: tableprefix2_%
             file: tableprefix2.sql
 ```
+
+## copyright & license
+
+Copyright 2011, FireFly Interactive (http://www.fireflyinteractive.pl)
+The code is distributed under the terms of the MIT License.
+For the full license see http://www.opensource.org/licenses/mit-license.php.
