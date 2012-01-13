@@ -126,7 +126,7 @@ class DbGitBackup_Vendor_MySql {
         while($row = mysql_fetch_object($result)) {
             $database = $row->Database;
             if ($database == 'information_schema') continue;
-            $result2 = mysql_query("SHOW TABLES FROM $database", $conn);
+            $result2 = mysql_query("SHOW TABLES FROM `$database`", $conn);
             if (mysql_num_rows($result2) > 0) $databases[] = $database;
             mysql_free_result($result2);
         }
