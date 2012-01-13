@@ -64,6 +64,17 @@ class DbGitBackup_Vendor_MySql {
  */
     public function getDumpStatement() {
         $options = $this->options;
+        $compressionPipe = '';
+        $resultFile = " --result-file={$options['backupDir']}" . DS . "{$options['file']}";
+        if (
+            isset($options['backupCompression']) &&
+            in_array($options['backupCompression'], array('bzip2', 'gzip'))
+        ) {
+            $resultFile = '';
+            $compressionPipe = ($options['backupCompression'] == 'bzip2') ?
+                ' | bzip2 -c > ' . $options['backupDir'] . DS . $options['file'] . '.bz2' :
+                ' | gzip > ' . $options['backupDir'] . DS . $options['file'] . '.gz';
+        }
         $cmd = "{$options['nice']} " .
                 $this->mysqldump .
                 " --user={$options['server']['user']}" .
@@ -73,12 +84,13 @@ class DbGitBackup_Vendor_MySql {
                 " --skip-extended-insert --comments=0" . // required in git backup mode
                 " --add-drop-table --default-character-set=utf8 --quote-names --compress" .
                 $options['vendorOptions'] .
-                " --result-file={$options['backupDir']}" . DS . "{$options['file']}" .
+                $resultFile .
                 " {$options['db']}"
         ;
         if (isset($options['tableNames'])) {
             $cmd .= " {$this->getTableNames()}";
         }
+        $cmd .= $compressionPipe;
         return $cmd;
     }
 
@@ -125,7 +137,7 @@ class DbGitBackup_Vendor_MySql {
         $result = mysql_list_dbs($conn);
         while($row = mysql_fetch_object($result)) {
             $database = $row->Database;
-            if ($database == 'information_schema') continue;
+            if (in_array($database, array('information_schema', 'performance_schema'))) continue;
             $result2 = mysql_query("SHOW TABLES FROM `$database`", $conn);
             if (mysql_num_rows($result2) > 0) $databases[] = $database;
             mysql_free_result($result2);

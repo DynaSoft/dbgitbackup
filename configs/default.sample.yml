@@ -8,6 +8,8 @@ global:
     backupInterval: +2 hours
     # [OPTIONAL | default: not set] enables backup directory rotation (string in format accepted by strtotime())
     backupDirInterval: +3 months
+    # [OPTIONAL | default: not set] either `bzip2` or `gzip` (only when backupMode: sql)
+    backupCompression: bzip2
     # database server details
     server:
         # [REQUIRED] see lib/DbGitBackup/Vendor for a list of supported database vendors
