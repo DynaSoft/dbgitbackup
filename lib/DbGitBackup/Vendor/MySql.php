@@ -67,6 +67,7 @@ class DbGitBackup_Vendor_MySql {
         $compressionPipe = '';
         $resultFile = " --result-file={$options['backupDir']}" . DS . "{$options['file']}";
         if (
+            ($options['backupMode'] == 'sql') &&
             isset($options['backupCompression']) &&
             in_array($options['backupCompression'], array('bzip2', 'gzip'))
         ) {
