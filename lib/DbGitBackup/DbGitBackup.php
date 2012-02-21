@@ -225,7 +225,7 @@ class DbGitBackup {
                         $this->writeTimestamp(dirname($this->backupDir));
                     }
                 } else {
-                    $this->log("$backupConfigKey [$database] -> problems during backup", $this->now($details['time']['offset']));
+                    $this->logError("$backupConfigKey [$database] -> problems during backup", $this->now($details['time']['offset']));
                 }
                 unset($vendorObject);
             }
@@ -406,7 +406,7 @@ class DbGitBackup {
     }
 
 /**
- * Logs script output via all loaded loggers
+ * Logs script output and errors via all loaded loggers
  *
  * @param string|array $message
  * @param string $time
@@ -415,6 +415,13 @@ class DbGitBackup {
         if (!is_null($time)) $time .= ' ';
         foreach ($this->loggers as $loggerObj) {
             if (method_exists($loggerObj, 'log')) $loggerObj->log($time . $message);
+        }
+    }
+
+    public function logError($message, $time = null) {
+        if (!is_null($time)) $time .= ' ';
+        foreach ($this->loggers as $loggerObj) {
+            if (method_exists($loggerObj, 'logError')) $loggerObj->logError($time . $message);
         }
     }
 
@@ -430,8 +437,8 @@ class DbGitBackup {
  * @param string|array $errorMessage
  */
     public function error($errorMessage) {
-        $this->log($errorMessage);
-        $this->log('Giving up...');
+        $this->logError($errorMessage);
+        $this->logError('Giving up...');
         exit;
     }
 

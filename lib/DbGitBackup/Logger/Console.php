@@ -18,12 +18,16 @@ class DbGitBackup_Logger_Console {
     public function __construct($options = array()) {
     }
 
-    public function log($message, $newlines = 1) {
+    public function log($message, $newlines = 1, $stream = 'php://stdout') {
         if (is_array($message)) {
             $message = implode(self::EOL, $message);
         }
-        $output = fopen('php://stdout', 'w');
+        $output = fopen($stream, 'w');
         fwrite($output, $message . str_repeat(self::EOL, $newlines));
+    }
+
+    public function logError($message, $newlines = 1) {
+        $this->log($message, $newlines, 'php://stderr');
     }
 
     public function hr($newlines = 0, $width = 63) {
