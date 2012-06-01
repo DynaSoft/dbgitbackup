@@ -218,11 +218,9 @@ class DbGitBackup {
                     $this->gitIt($details);
 
                     $this->log("[configuration: $backupConfigKey] [db: {$details['db']}] -> backup created", $this->now($details['time']['offset']));
+                    
                     if (isset($details['backupInterval'])) {
                         $this->writeTimestamp($this->backupDir);
-                    }
-                    if (isset($details['backupDirInterval'])) {
-                        $this->writeTimestamp(dirname($this->backupDir));
                     }
                 } else {
                     $this->logError("$backupConfigKey [$database] -> problems during backup", $this->now($details['time']['offset']));
@@ -336,6 +334,28 @@ class DbGitBackup {
     }
 
 /**
+ * Scans directories inside $dir, returns most recent directory name
+ *
+ * @param string
+ */    
+    public function getCurrentDir($dir) {
+        if (!is_dir($dir)) return false;
+        $dirs = array();
+        if ($dh = opendir($dir)) {
+            while (($file = readdir($dh)) !== false) {
+                if (filetype($dir . DS . $file) == 'dir' && ($file != '.') && ($file != '..')) {
+                    $info = new SplFileInfo($dir . DS . $file);
+                    $dirs[ $info->getATime() ] = array('dir' => $file, 'timestamp' => $info->getATime());
+                    unset($info);
+                }
+            }
+            closedir($dh);
+        }
+        if (!empty($dirs)) return $dirs[max(array_keys($dirs))];
+        return false;
+    }
+    
+/**
  * Sets backup directory for currently processed configuration
  *
  * @param string
@@ -347,27 +367,29 @@ class DbGitBackup {
         } else {
             $this->backupDir = $this->options['baseDir'] . DS . $details['backupsDir'] . DS . $details['dirName'];
         }
+        
         // Rotate backup directory
         if (isset($details['backupDirInterval'])) {
-            if (is_dir($this->backupDir)) {
-                if ($this->verifyTimestamp($this->backupDir, $details['backupDirInterval'])) {
+        
+            $currentDir = $this->getCurrentDir($this->backupDir);
+            
+            if (!$currentDir) {
+                // first time run
+                $this->backupDir .= DS . $this->now($details['time']['offset'], 'Y-m-d-H-i-s');
+            } else {
+                $timestamp = $currentDir['timestamp'];
+                $nextTimestamp = strtotime($details['backupDirInterval'], $timestamp);
+                if (time() > $nextTimestamp) { 
+                    // create new directory
                     $this->backupDir .= DS . $this->now($details['time']['offset'], 'Y-m-d-H-i-s');
                 } else {
-                    if ($dh = opendir($this->backupDir)) {
-                        $dirs = array();
-                        while (($file = readdir($dh)) !== false) {
-                            if (filetype($this->backupDir . DS . $file) == 'dir' && ($file != '.') && ($file != '..')) {
-                                $dirs[strtotime($file)] = $file;
-                            }
-                        }
-                        closedir($dh);
-                        $this->backupDir .= DS . $dirs[max(array_keys($dirs))];
-                    }
+                    // write to existing directory
+                    $this->backupDir .= DS . $currentDir['dir'];
                 }
-            } else {
-                $this->backupDir .= DS . $this->now($details['time']['offset'], 'Y-m-d-H-i-s');
             }
+           
         }
+        
         $details['backupDir'] = $this->backupDir;
     }
 
