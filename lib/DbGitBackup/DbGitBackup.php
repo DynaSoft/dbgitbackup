@@ -334,7 +334,7 @@ class DbGitBackup {
     }
 
 /**
- * Scans directories inside $dir, returns most recent directory name
+ * Scans directories inside $dir, returns most recent directory info
  *
  * @param string
  */    
