@@ -23,7 +23,7 @@ Clone dbgitbackup project into a directory on your server:
 ```
 mkdir /home/user/dbgitbackup
 cd /home/user/dbgitbackup
-git clone git://github.com/fireflyinteractive/dbgitbackup.git .
+git clone git://github.com/DynaSoft/dbgitbackup.git .
 ```
 
 Create empty config file inside `configs` folder:
@@ -285,6 +285,6 @@ sampleBackupConfiguration2:
 
 ## copyright & license
 
-Copyright 2011, FireFly Interactive (http://www.fireflyinteractive.pl).
+Copyright 2011, DynaSoft (http://www.dynasoft.pl).
 The code is distributed under the terms of the MIT License.
 For the full license see http://www.opensource.org/licenses/mit-license.php.
